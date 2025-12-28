@@ -18,9 +18,9 @@ spring:
     change-log: classpath:db/migration/changelog/db.changelog-master.yaml
 
   security:
-    jwt:
-      secret: your-secret-key-at-least-32-characters-long-for-hs256
-      expiration: 86400000
+      jwt:
+        secret: MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=  # "12345678901234567890123456789012" в base64
+        expiration: 86400000  # 24 часа
 
 server:
   port: 8080
