@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+
+  liquibase:
+    enabled: false
+
+encryption:
+  secret-key: "dGVzdC1zZWNyZXQta2V5LTI1Ni1iaXRzLTEyMzQ1Njc="
+
+spring.security.jwt.secret: test-secret-key-32-characters-long!!
+spring.security.jwt.expiration: 3600000
