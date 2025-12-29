@@ -1,10 +1,11 @@
 spring:
+  application:
+    name: bankcards
   datasource:
     url: jdbc:postgresql://localhost:5432/bankcards
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: validate
@@ -13,14 +14,15 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
   liquibase:
     change-log: classpath:db/migration/changelog/db.changelog-master.yaml
-
   security:
-      jwt:
-        secret: MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=  # "12345678901234567890123456789012" в base64
-        expiration: 86400000  # 24 часа
+    jwt:
+      secret: MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=  # "12345678901234567890123456789012" в base64
+      expiration: 86400000  # 24 часа
+
+encryption:
+  secret-key: "dGVzdC1zZWNyZXQta2V5LTI1Ni1iaXRzLTEyMzQ1Njc=" # test-secret-key-256-bits-1234567
 
 server:
   port: 8080

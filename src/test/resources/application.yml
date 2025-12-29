@@ -12,6 +12,8 @@ spring:
 
   liquibase:
     enabled: false
+  encryption:
+    secret-key: "dGVzdC1zZWNyZXQta2V5LTI1Ni1iaXRzLTEyMzQ1Njc=" # test-secret-key-256-bits-1234567
 
   security:
     jwt:

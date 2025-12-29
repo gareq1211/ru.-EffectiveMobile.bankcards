@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: db/migration/changelog/V001__init_tables.yaml
+  - include:
+      file: db/migration/changelog/V002__add_card_audit_table.yaml

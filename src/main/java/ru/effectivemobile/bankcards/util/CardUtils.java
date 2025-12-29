@@ -2,14 +2,21 @@ package ru.effectivemobile.bankcards.util;
 
 public class CardUtils {
 
-    /**
-     * Маскирует PAN: "1234567890123456" → "**** **** **** 3456"
-     */
     public static String maskPan(String pan) {
         if (pan == null || pan.length() < 4) {
             return "****";
         }
-        String last4 = pan.substring(pan.length() - 4);
-        return "**** **** **** " + last4;
+        // Формат: **** **** **** 1234
+        return "**** **** **** " + pan.substring(pan.length() - 4);
+    }
+
+    public static String maskPanForDisplay(String pan) {
+        if (pan == null || pan.length() != 16) {
+            return maskPan(pan);
+        }
+        // Формат: 1234 56** **** 1234
+        return pan.substring(0, 4) + " " +
+                pan.substring(4, 6) + "** **** " +
+                pan.substring(12);
     }
 }
