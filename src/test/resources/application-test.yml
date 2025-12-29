@@ -16,5 +16,13 @@ spring:
 encryption:
   secret-key: "dGVzdC1zZWNyZXQta2V5LTI1Ni1iaXRzLTEyMzQ1Njc="
 
+business:
+  rules:
+    min-card-balance: 0.00
+    max-transfer-amount: 1000000.00
+    min-transfer-amount: 0.01
+    max-cards-per-user: 5
+    min-initial-balance: 0.00
+
 spring.security.jwt.secret: test-secret-key-32-characters-long!!
 spring.security.jwt.expiration: 3600000
