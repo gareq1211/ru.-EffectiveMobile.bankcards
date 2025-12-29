@@ -11,10 +11,6 @@ import java.time.YearMonth;
 
 @Entity
 @Table(name = "card")
-@Data
-@NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(onlyExplicitlyIncluded = true)
 public class Card {
 
     @Id
@@ -41,4 +37,24 @@ public class Card {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    public String getEncryptedPan() { return encryptedPan; }
+    public void setEncryptedPan(String encryptedPan) { this.encryptedPan = encryptedPan; }
+
+    public String getOwnerName() { return ownerName; }
+    public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
+
+    public YearMonth getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(YearMonth expiryDate) { this.expiryDate = expiryDate; }
+
+    public CardStatus getStatus() { return status; }
+    public void setStatus(CardStatus status) { this.status = status; }
+
+    public BigDecimal getBalance() { return balance; }
+    public void setBalance(BigDecimal balance) { this.balance = balance; }
 }

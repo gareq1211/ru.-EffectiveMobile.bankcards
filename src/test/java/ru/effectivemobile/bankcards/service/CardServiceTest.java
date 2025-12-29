@@ -3,6 +3,8 @@ package ru.effectivemobile.bankcards.service;
 import ru.effectivemobile.bankcards.dto.CardDto;
 import ru.effectivemobile.bankcards.dto.CreateCardRequest;
 import ru.effectivemobile.bankcards.entity.Card;
+import ru.effectivemobile.bankcards.entity.CardStatus;
+import ru.effectivemobile.bankcards.entity.Role;
 import ru.effectivemobile.bankcards.entity.User;
 import ru.effectivemobile.bankcards.exception.UserNotFoundException;
 import ru.effectivemobile.bankcards.repository.CardRepository;
@@ -12,8 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.time.YearMonth;
 import java.math.BigDecimal;
+import java.util.List;
+import java.awt.*;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,5 +95,40 @@ class CardServiceTest {
                 .hasMessage("User not found with id: 999");
 
         verify(cardRepository, never()).save(any());
+    }
+    @Test
+    void shouldGetMyCards_WhenUserIsAuthenticated() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+        user.setRole(Role.USER);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+
+        Card card = new Card();
+        card.setId(1L);
+        card.setUserId(1L);
+        card.setEncryptedPan("1234567890123456");
+        card.setOwnerName("John Doe");
+        card.setExpiryDate(YearMonth.of(2028, 12));
+        card.setStatus(CardStatus.ACTIVE);
+        card.setBalance(new BigDecimal("1000.00"));
+        when(cardRepository.findByUserId(1L)).thenReturn(List.of(card));
+
+        // authenticate user
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "test@example.com", null, List.of()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        // when
+        List<CardDto> result = cardService.getMyCards();
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).maskedPan()).isEqualTo("**** **** **** 3456");
+
+        // cleanup
+        SecurityContextHolder.clearContext();
     }
 }

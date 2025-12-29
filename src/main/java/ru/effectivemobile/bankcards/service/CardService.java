@@ -12,8 +12,11 @@ import ru.effectivemobile.bankcards.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.stream.Collectors;
+import java.awt.*;
 import java.time.YearMonth;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,10 +26,6 @@ public class CardService {
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Создаёт новую банковскую карту.
-     * Доступно только администраторам (проверка прав — в контроллере или security).
-     */
     public CardDto createCard(CreateCardRequest request) {
         // 1. Проверяем, что пользователь с таким ID существует
         User user = userRepository.findById(request.userId())
@@ -47,5 +46,15 @@ public class CardService {
 
         // 4. Возвращаем DTO
         return CardMapper.toDto(savedCard);
+        }
+    public List<CardDto> getMyCards() {
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + currentEmail));
+
+        List<Card> cards = cardRepository.findByUserId(user.getId());
+        return cards.stream()
+                .map(CardMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
