@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
+import ru.effectivemobile.bankcards.service.validation.ValidationService;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +35,14 @@ public class CardService {
     private final EncryptionService encryptionService;
     private final CardMapper cardMapper;
     private final AuditService auditService;
+    private final ValidationService validationService;
 
     public CardDto createCard(CreateCardRequest request) {
+        // ✅ Валидация бизнес-правил
+        validationService.validatePan(request.pan());
+        validationService.validateExpiryDate(request.expiryDate());
+        validationService.validateCardCreation(request.userId(), request.initialBalance());
+
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + request.userId()));
 
@@ -51,9 +58,8 @@ public class CardService {
         card.setBalance(request.initialBalance());
 
         Card savedCard = cardRepository.save(card);
-        // ✅ Логируем создание карты
-        auditService.logCardCreation(savedCard);
 
+        auditService.logCardCreation(savedCard);
         return cardMapper.toDto(savedCard);
     }
 
@@ -131,11 +137,13 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
 
-        CardStatus oldStatus = card.getStatus(); // Сохраняем старый статус
+        // ✅ Валидация изменения статуса
+        validationService.validateCardStatusChange(card, request.status());
+
+        CardStatus oldStatus = card.getStatus();
         card.setStatus(request.status());
         Card updatedCard = cardRepository.save(card);
 
-        // ✅ Логируем изменение статуса
         if (!oldStatus.equals(request.status())) {
             auditService.logStatusChange(updatedCard, oldStatus);
         }
@@ -170,14 +178,12 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
 
-        if (card.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-            throw new IllegalArgumentException("Cannot delete card with positive balance");
-        }
+        // ✅ Валидация удаления
+        validationService.validateCardDeletion(card);
 
         cardRepository.delete(card);
     }
 
-    // ✅ ОБНОВЛЕННЫЙ метод transfer
     @Transactional
     public void transfer(TransferRequest request) {
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -192,40 +198,16 @@ public class CardService {
         Card toCard = cardRepository.findById(request.toCardId())
                 .orElseThrow(() -> new CardNotFoundException(request.toCardId()));
 
+        // Проверяем принадлежность карт
         if (!fromCard.getUserId().equals(userId)) {
             throw new IllegalArgumentException("Source card does not belong to you");
         }
         if (!toCard.getUserId().equals(userId)) {
             throw new IllegalArgumentException("Target card does not belong to you");
         }
+        // ✅ Используем ValidationService для проверки
+        validationService.validateTransfer(fromCard, toCard, request.amount());
 
-        if (fromCard.getId().equals(toCard.getId())) {
-            throw new IllegalArgumentException("Cannot transfer to the same card");
-        }
-
-        if (fromCard.getStatus() != CardStatus.ACTIVE) {
-            throw new CardNotActiveException("Source card is not active. Current status: " + fromCard.getStatus());
-        }
-        if (toCard.getStatus() != CardStatus.ACTIVE) {
-            throw new CardNotActiveException("Target card is not active. Current status: " + toCard.getStatus());
-        }
-
-        if (fromCard.getBalance().compareTo(request.amount()) < 0) {
-            throw new InsufficientFundsException(
-                    String.format("Insufficient funds. Available: %s, Required: %s",
-                            fromCard.getBalance(), request.amount())
-            );
-        }
-
-        if (request.amount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Transfer amount must be positive");
-        }
-
-        fromCard.setBalance(fromCard.getBalance().subtract(request.amount()));
-        toCard.setBalance(toCard.getBalance().add(request.amount()));
-
-        cardRepository.save(fromCard);
-        cardRepository.save(toCard);
         BigDecimal fromOldBalance = fromCard.getBalance();
         BigDecimal toOldBalance = toCard.getBalance();
 
@@ -235,13 +217,12 @@ public class CardService {
         cardRepository.save(fromCard);
         cardRepository.save(toCard);
 
-        // ✅ Логируем перевод
         auditService.logTransfer(fromCard, toCard, request.amount());
         auditService.logBalanceChange(fromCard, fromOldBalance);
         auditService.logBalanceChange(toCard, toOldBalance);
     }
 
-    // ✅ ОБНОВЛЕННЫЙ метод проверки просроченных карт
+        // ✅ ОБНОВЛЕННЫЙ метод проверки просроченных карт
     @Transactional
     public void checkAndUpdateExpiredCards() {
         YearMonth currentDate = YearMonth.now();

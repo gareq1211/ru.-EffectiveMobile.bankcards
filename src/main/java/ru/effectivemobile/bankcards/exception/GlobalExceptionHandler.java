@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Map;import ru.effectivemobile.bankcards.exception.BusinessValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -70,6 +70,13 @@ public class GlobalExceptionHandler {
         if (System.getenv("ENVIRONMENT") == null || System.getenv("ENVIRONMENT").equals("dev")) {
             problemDetail.setProperty("stackTrace", ex.getStackTrace());
         }
+        return problemDetail;
+    }
+    @ExceptionHandler(BusinessValidationException.class)
+    ProblemDetail handleBusinessValidation(BusinessValidationException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Business Validation Error");
         return problemDetail;
     }
 }
