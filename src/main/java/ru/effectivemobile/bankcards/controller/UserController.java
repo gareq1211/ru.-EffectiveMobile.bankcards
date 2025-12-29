@@ -1,5 +1,8 @@
 package ru.effectivemobile.bankcards.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import ru.effectivemobile.bankcards.dto.CreateUserRequest;
 import ru.effectivemobile.bankcards.dto.UserDto;
 import ru.effectivemobile.bankcards.service.UserService;
 
+@Tag(name = "Users", description = "Manage users (ADMIN only)")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -20,6 +24,10 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Create a new user")
+    @ApiResponse(responseCode = "201", description = "User created")
+    @ApiResponse(responseCode = "403", description = "Access denied")
+    @ApiResponse(responseCode = "400", description = "Invalid input")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserRequest request) {

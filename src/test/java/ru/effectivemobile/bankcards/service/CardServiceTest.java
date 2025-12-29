@@ -2,6 +2,7 @@ package ru.effectivemobile.bankcards.service;
 
 import ru.effectivemobile.bankcards.dto.CardDto;
 import ru.effectivemobile.bankcards.dto.CreateCardRequest;
+import ru.effectivemobile.bankcards.dto.TransferRequest;
 import ru.effectivemobile.bankcards.entity.Card;
 import ru.effectivemobile.bankcards.entity.CardStatus;
 import ru.effectivemobile.bankcards.entity.Role;
@@ -28,6 +29,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class CardServiceTest {
@@ -129,6 +136,78 @@ class CardServiceTest {
         assertThat(result.get(0).maskedPan()).isEqualTo("**** **** **** 3456");
 
         // cleanup
+        SecurityContextHolder.clearContext();
+    }
+    @Test
+    void shouldTransferBetweenOwnCards() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+
+        Card fromCard = new Card();
+        fromCard.setId(1L);
+        fromCard.setUserId(1L);
+        fromCard.setBalance(new BigDecimal("1000.00"));
+        fromCard.setStatus(CardStatus.ACTIVE);
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(fromCard));
+
+        Card toCard = new Card();
+        toCard.setId(2L);
+        toCard.setUserId(1L);
+        toCard.setBalance(new BigDecimal("500.00"));
+        when(cardRepository.findById(2L)).thenReturn(Optional.of(toCard));
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "test@example.com", null, List.of()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        TransferRequest request = new TransferRequest(1L, 2L, new BigDecimal("200.00"));
+
+        // when
+        cardService.transfer(request);
+
+        // then
+        assertThat(fromCard.getBalance()).isEqualByComparingTo("800.00");
+        assertThat(toCard.getBalance()).isEqualByComparingTo("700.00");
+        verify(cardRepository).save(fromCard);
+        verify(cardRepository).save(toCard);
+
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void shouldThrow_WhenTransferringToAnotherUserCard() {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+
+        Card fromCard = new Card();
+        fromCard.setId(1L);
+        fromCard.setUserId(1L);
+        fromCard.setBalance(new BigDecimal("1000.00"));
+        fromCard.setStatus(CardStatus.ACTIVE);
+        when(cardRepository.findById(1L)).thenReturn(Optional.of(fromCard));
+
+        Card toCard = new Card();
+        toCard.setId(2L);
+        toCard.setUserId(2L); // ← другой пользователь!
+        when(cardRepository.findById(2L)).thenReturn(Optional.of(toCard));
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "test@example.com", null, List.of()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        TransferRequest request = new TransferRequest(1L, 2L, new BigDecimal("100.00"));
+
+        assertThatThrownBy(() -> cardService.transfer(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Target card does not belong to you");
+
         SecurityContextHolder.clearContext();
     }
 }
