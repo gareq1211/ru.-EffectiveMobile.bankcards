@@ -1,0 +1,12 @@
+﻿spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bankcards
+    username: postgres
+    password: postgres
+    
+  jpa:
+    hibernate:
+      ddl-auto: create
+      
+  liquibase:
+    enabled: false
