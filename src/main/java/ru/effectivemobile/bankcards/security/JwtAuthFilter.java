@@ -25,11 +25,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // Пропускай Swagger и API docs БЕЗ проверки JWT
+        if (path.contains("swagger") || path.contains("api-docs") || path.contains("webjars") ||
+                path.contains("swagger-ui") || path.contains("v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Остальной код проверки JWT...
         final String authorizationHeader = request.getHeader("Authorization");
 
         String email = null;
@@ -41,13 +49,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
-            if (jwtUtil.isTokenValid(jwt, email)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            try {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+                if (jwtUtil.isTokenValid(jwt, email)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                // Игнорируем ошибки для Swagger
+                if (!path.contains("swagger") && !path.contains("api-docs")) {
+                    throw e;
+                }
             }
         }
 
