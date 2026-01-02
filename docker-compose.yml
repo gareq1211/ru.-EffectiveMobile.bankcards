@@ -1,22 +1,4 @@
-#services:
-##  db:
-##    image: postgres:16
-##    container_name: bankcards-db
-##    ports:
-##      - "5434:5432"
-##    environment:
-##      POSTGRES_USER: postgres
-##      POSTGRES_PASSWORD: postgres
-##      POSTGRES_DB: bankcards
-##    healthcheck:
-##      test: ["CMD-SHELL", "pg_isready -U postgres"]
-##      interval: 5s
-##      timeout: 5s
-##      retries: 10
-##
-##
-##volumes:
-##  postgres_data: {}  # ← исправленное имя
+version: '3.8'
 
 services:
   db:
@@ -27,3 +9,33 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bankcards
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-database.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bankcards-app
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bankcards
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_SECURITY_JWT_SECRET=${JWT_SECRET:-MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=}
+      - ENCRYPTION_SECRET_KEY=${ENCRYPTION_KEY:-dGVzdC1zZWNyZXQta2V5LTI1Ni1iaXRzLTEyMzQ1Njc=}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

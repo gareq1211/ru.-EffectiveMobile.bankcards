@@ -6,11 +6,48 @@ build/
 # IDEA
 .idea/
 *.iml
-/out/
+*.iws
+out/
 
-# OS
+# Eclipse
+.settings/
+.classpath
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Mac
 .DS_Store
+
+# Windows
 Thumbs.db
 
-# Env
+# Logs
+*.log
+logs/
+
+# Application
+application-local.yml
 .env
+*.env.local
+
+# Docker
+docker-compose.override.yml
+
+# Temp files
+temp/
+tmp/
+
+# Test reports
+test-output/
+reports/

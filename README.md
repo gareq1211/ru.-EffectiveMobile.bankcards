@@ -1,37 +1,129 @@
-# Bank Cards Management System
+# 🏦 Bank Cards Management System
 
-A secure REST API for managing bank cards with Spring Boot, Spring Security, and JWT authentication.
+Система управления банковскими картами с полной аутентификацией, шифрованием данных и аудитом действий.
 
-## 🚀 Features
+## 🚀 Быстрый старт
 
-- **Secure PAN Storage**: AES-256-GCM encryption for card numbers
-- **Role-Based Access Control**: ADMIN and USER roles with different permissions
-- **Business Validation**: Transfer limits, balance checks, PAN validation (Luhn algorithm)
-- **Audit Logging**: Complete audit trail for all card operations
-- **Scheduled Tasks**: Automatic card expiry checks
-- **API Documentation**: OpenAPI 3.0 with Swagger UI
+### Требования
+- Java 17+
+- Docker и Docker Compose
+- Gradle (или используйте Gradle Wrapper)
 
-## 🛠️ Technology Stack
+### Установка и запуск
 
-- **Java 17**
-- **Spring Boot 3.4.0**
-- **Spring Security** with JWT
-- **PostgreSQL** / **H2** (for testing)
-- **Liquibase** for database migrations
-- **Docker** for development environment
-- **Swagger/OpenAPI** for documentation
+#### Вариант 1: Полная установка (рекомендуется)
 
-## 📋 Requirements
+1. **Настройка базы данных:**
+```bash
+# Windows
+setup-database.bat
 
-- Java 17 or higher
-- Docker and Docker Compose (for development)
-- PostgreSQL (or use Docker)
+# Linux/Mac
+chmod +x setup-database.sh
+./setup-database.sh
 
-## 🏃‍♂️ Quick Start
+Запуск приложения:
+# Windows
+start-application.bat
 
-### 1. Clone and Build
+# Linux/Mac
+chmod +x start-application.sh
+./start-application.sh
+
+Архитектура:
+src/
+├── main/
+│   ├── java/ru/effectivemobile/bankcards/
+│   │   ├── controller/     # REST контроллеры
+│   │   ├── service/        # Бизнес-логика
+│   │   ├── repository/     # Доступ к данным
+│   │   ├── entity/         # Сущности БД
+│   │   ├── dto/           # Data Transfer Objects
+│   │   ├── config/        # Конфигурации
+│   │   ├── security/      # Настройки безопасности
+│   │   ├── validation/    # Валидация
+│   │   └── exception/     # Обработка исключений
+│   └── resources/
+│       ├── application.yml # Конфигурация
+│       └── db/migration/   # Миграции БД
+
+🧪 Тестирование
+Подробное руководство по тестированию в файле TESTING_GUIDE.md
+
+📊 Основные API endpoints
+Аутентификация
+POST /auth/login - вход в систему
+
+Карты (требуют авторизацию)
+GET /cards/my - мои карты
+
+POST /cards/transfers - перевод между своими картами
+
+POST /cards/{id}/request-block - запрос блокировки карты
+
+Администрирование (только ADMIN)
+POST /cards - создание новой карты
+
+GET /cards/admin/all - все карты с фильтрацией
+
+PATCH /cards/{id}/status - изменение статуса карты
+
+GET /users - список пользователей
+
+Аудит
+GET /audit/cards/{cardId} - логи действий по карте
+
+GET /audit/users/{userId} - логи действий пользователя
+
+🚨 Безопасность
+Особенности реализации:
+Шифрование номеров карт: PAN шифруется AES-256-GCM перед сохранением в БД
+
+Маскирование данных: При отображении показываются только последние 4 цифры
+
+Аудит действий: Все операции логируются с детальной информацией
+
+Ролевой доступ: Разделение прав USER/ADMIN
+
+Валидация данных: Проверка на всех уровнях приложения
+
+Бизнес-правила:
+Минимальный баланс карты: 0.00
+
+Максимальная сумма перевода: 1,000,000.00
+
+Минимальная сумма перевода: 0.01
+
+Максимум карт на пользователя: 5
+
+Автоматическая проверка просроченных карт (ежедневно)
+
+Приложение успешно запущено! 🎉
+
+Откройте http://localhost:8082/swagger-ui.html для начала работы.
+
+
+## 🚀 **Инструкция по запуску:**
+
+### 1. **Создайте все файлы в корне проекта:**
+- `init-database.sql`
+- `setup-database.bat`
+- `setup-database.sh`
+- `start-application.bat`
+- `start-application.sh`
+- `TESTING_GUIDE.md`
+- `README.md`
+
+### 2. **Выполните команды:**
 
 ```bash
-cd bankcards
-docker-compose up -d
-./gradlew clean build
+# Дайте права на выполнение скриптам (Linux/Mac)
+chmod +x setup-database.sh start-application.sh
+
+# 1. Настройте базу данных
+./setup-database.bat    # Windows
+./setup-database.sh     # Linux/Mac
+
+# 2. Запустите приложение
+./start-application.bat # Windows  
+./start-application.sh  # Linux/Mac
