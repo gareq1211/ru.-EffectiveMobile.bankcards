@@ -8,7 +8,7 @@ import ru.effectivemobile.bankcards.service.CardService;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j // ✅ Добавляем эту аннотацию
+@Slf4j
 public class CardExpiryScheduler {
 
     private final CardService cardService;

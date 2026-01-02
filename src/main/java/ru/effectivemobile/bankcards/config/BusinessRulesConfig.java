@@ -33,8 +33,7 @@ public class BusinessRulesConfig {
     @DecimalMin("0.00")
     private BigDecimal minInitialBalance = new BigDecimal("0.00");
 
-    // Геттеры и сеттеры
-    public BigDecimal getMinCardBalance() {
+      public BigDecimal getMinCardBalance() {
         return minCardBalance;
     }
 

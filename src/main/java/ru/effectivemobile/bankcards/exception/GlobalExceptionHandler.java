@@ -66,8 +66,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
         problemDetail.setTitle("Server Error");
-        // В продакшене не включайте stack trace
-        if (System.getenv("ENVIRONMENT") == null || System.getenv("ENVIRONMENT").equals("dev")) {
+                if (System.getenv("ENVIRONMENT") == null || System.getenv("ENVIRONMENT").equals("dev")) {
             problemDetail.setProperty("stackTrace", ex.getStackTrace());
         }
         return problemDetail;

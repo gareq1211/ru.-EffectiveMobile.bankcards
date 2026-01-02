@@ -38,7 +38,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // ✅ Получить всех пользователей (ADMIN only)
+    // Получить всех пользователей (ADMIN only)
     public List<UserDto> getAllUsers() {
         checkAdminAccess();
 
@@ -47,7 +47,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Получить пользователей с пагинацией (ADMIN only)
+    // Получить пользователей с пагинацией (ADMIN only)
     public Page<UserDto> getAllUsers(Pageable pageable) {
         checkAdminAccess();
 
@@ -55,7 +55,7 @@ public class UserService {
                 .map(this::toDto);
     }
 
-    // ✅ Получить пользователя по ID (ADMIN или сам пользователь)
+    // Получить пользователя по ID (ADMIN или сам пользователь)
     public UserDto getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
@@ -66,7 +66,7 @@ public class UserService {
         return toDto(user);
     }
 
-    // ✅ Обновить пользователя (ADMIN или сам пользователь для своего профиля)
+    // Обновить пользователя (ADMIN или сам пользователь для своего профиля)
     @Transactional
     public UserDto updateUser(Long userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
@@ -97,7 +97,7 @@ public class UserService {
         return toDto(updatedUser);
     }
 
-    // ✅ Удалить пользователя (ADMIN only)
+    // Удалить пользователя (ADMIN only)
     @Transactional
     public void deleteUser(Long userId) {
         checkAdminAccess();
@@ -114,7 +114,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    // ✅ Получить текущего пользователя
+    // Получить текущего пользователя
     public UserDto getCurrentUser() {
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(currentEmail)

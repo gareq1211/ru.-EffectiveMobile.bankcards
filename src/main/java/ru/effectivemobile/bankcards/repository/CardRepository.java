@@ -18,12 +18,10 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     Page<Card> findByUserId(Long userId, Pageable pageable);
 
-    // Для администратора - все карты с фильтрами
     Page<Card> findByStatus(CardStatus status, Pageable pageable);
 
     Page<Card> findByUserIdAndStatus(Long userId, CardStatus status, Pageable pageable);
 
-    // Найти просроченные карты
     @Query("SELECT c FROM Card c WHERE c.expiryDate < :currentDate AND c.status = 'ACTIVE'")
     List<Card> findExpiredCards(@Param("currentDate") YearMonth currentDate);
 }

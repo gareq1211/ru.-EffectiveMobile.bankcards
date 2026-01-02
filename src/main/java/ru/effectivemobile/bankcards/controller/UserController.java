@@ -27,7 +27,7 @@ public class UserController {
 
     private final UserService userService;
 
-    // ✅ Создание пользователя (ADMIN only)
+    // Создание пользователя (ADMIN only)
     @Operation(summary = "Create a new user (ADMIN only)")
     @ApiResponse(responseCode = "201", description = "User created")
     @PostMapping
@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
-    // ✅ Получить всех пользователей (ADMIN only)
+    // Получить всех пользователей (ADMIN only)
     @Operation(summary = "Get all users (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "Users retrieved")
     @GetMapping
@@ -48,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // ✅ Получить пользователей с пагинацией (ADMIN only)
+    // Получить пользователей с пагинацией (ADMIN only)
     @Operation(summary = "Get users with pagination (ADMIN only)")
     @ApiResponse(responseCode = "200", description = "Users retrieved")
     @GetMapping("/paged")
@@ -58,7 +58,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // ✅ Получить пользователя по ID
+    // Получить пользователя по ID
     @Operation(summary = "Get user by ID")
     @ApiResponse(responseCode = "200", description = "User retrieved")
     @ApiResponse(responseCode = "404", description = "User not found")
@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // ✅ Получить текущего пользователя
+    // Получить текущего пользователя
     @Operation(summary = "Get current user")
     @ApiResponse(responseCode = "200", description = "User retrieved")
     @GetMapping("/me")
@@ -77,7 +77,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // ✅ Обновить пользователя
+    // Обновить пользователя
     @Operation(summary = "Update user")
     @ApiResponse(responseCode = "200", description = "User updated")
     @ApiResponse(responseCode = "403", description = "Access denied")
@@ -89,7 +89,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    // ✅ Удалить пользователя (ADMIN only)
+    // Удалить пользователя (ADMIN only)
     @Operation(summary = "Delete user (ADMIN only)")
     @ApiResponse(responseCode = "204", description = "User deleted")
     @ApiResponse(responseCode = "403", description = "Access denied")

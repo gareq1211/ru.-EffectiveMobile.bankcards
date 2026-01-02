@@ -43,7 +43,7 @@ public class CardAudit {
     private CardStatus newStatus;
 
     @Column(name = "performed_by", nullable = false)
-    private String performedBy; // email пользователя который выполнил действие
+    private String performedBy;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

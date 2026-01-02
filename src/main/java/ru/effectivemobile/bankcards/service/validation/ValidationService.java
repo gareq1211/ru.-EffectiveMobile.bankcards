@@ -21,7 +21,7 @@ public class ValidationService {
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
 
-    // ✅ Валидация создания карты
+    // Валидация создания карты
     public void validateCardCreation(Long userId, BigDecimal initialBalance) {
         // Проверка максимального количества карт
         validateMaxCardsPerUser(userId);
@@ -35,7 +35,7 @@ public class ValidationService {
         }
     }
 
-    // ✅ Валидация перевода
+    // Валидация перевода
     public void validateTransfer(Card fromCard, Card toCard, BigDecimal amount) {
         // Проверка что карты активны
         validateCardActive(fromCard);
@@ -76,7 +76,7 @@ public class ValidationService {
         }
     }
 
-    // ✅ Валидация изменения баланса
+    // Валидация изменения баланса
     public void validateBalanceChange(Card card, BigDecimal newBalance) {
         // Проверка минимального баланса
         if (newBalance.compareTo(businessRules.getMinCardBalance()) < 0) {
@@ -90,7 +90,7 @@ public class ValidationService {
         validateCardNotExpired(card);
     }
 
-    // ✅ Валидация статуса карты
+    // Валидация статуса карты
     public void validateCardStatusChange(Card card, CardStatus newStatus) {
         // Нельзя активировать просроченную карту
         if (card.getStatus() == CardStatus.EXPIRED && newStatus == CardStatus.ACTIVE) {
@@ -108,7 +108,7 @@ public class ValidationService {
         }
     }
 
-    // ✅ Валидация удаления карты
+    // Валидация удаления карты
     public void validateCardDeletion(Card card) {
         if (card.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             throw new BusinessValidationException("Cannot delete card with positive balance");
@@ -119,7 +119,7 @@ public class ValidationService {
         }
     }
 
-    // ✅ Валидация PAN (номера карты)
+    // Валидация PAN (номера карты)
     public void validatePan(String pan) {
         if (pan == null || !pan.matches("\\d{16}")) {
             throw new BusinessValidationException("PAN must be exactly 16 digits");
@@ -131,7 +131,7 @@ public class ValidationService {
         }
     }
 
-    // ✅ Валидация срока действия
+    // Валидация срока действия
     public void validateExpiryDate(String expiryDate) {
         try {
             YearMonth expiry = YearMonth.parse(expiryDate,
@@ -152,7 +152,7 @@ public class ValidationService {
         }
     }
 
-    // ✅ Вспомогательные методы
+    // Вспомогательные методы
     private void validateMaxCardsPerUser(Long userId) {
         List<Card> userCards = cardRepository.findByUserId(userId);
         if (userCards.size() >= businessRules.getMaxCardsPerUser()) {

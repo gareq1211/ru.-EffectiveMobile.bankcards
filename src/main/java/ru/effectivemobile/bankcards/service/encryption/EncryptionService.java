@@ -29,7 +29,6 @@ public class EncryptionService {
     @PostConstruct
     public void init() {
         if (!StringUtils.hasText(secretKeyBase64)) {
-            // Для тестов или разработки создаём временный ключ
             System.err.println("WARNING: encryption.secret-key not set, using development key");
             generateDevelopmentKey();
         } else {

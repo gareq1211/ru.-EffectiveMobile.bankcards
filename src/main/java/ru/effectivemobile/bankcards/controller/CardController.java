@@ -24,8 +24,6 @@ public class CardController {
 
     private final CardService cardService;
 
-    // ✅ СУЩЕСТВУЮЩИЕ МЕТОДЫ
-
     @Operation(summary = "Create a new card (ADMIN only)")
     @ApiResponse(responseCode = "201", description = "Card created")
     @PostMapping
@@ -50,8 +48,6 @@ public class CardController {
         cardService.transfer(request);
         return ResponseEntity.ok().build();
     }
-
-    // ✅ НОВЫЕ МЕТОДЫ
 
     @Operation(summary = "Get card by ID")
     @ApiResponse(responseCode = "200", description = "Card retrieved")

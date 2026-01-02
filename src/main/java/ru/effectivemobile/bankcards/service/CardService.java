@@ -38,7 +38,7 @@ public class CardService {
     private final ValidationService validationService;
 
     public CardDto createCard(CreateCardRequest request) {
-        // ✅ Валидация бизнес-правил
+        // Валидация бизнес-правил
         validationService.validatePan(request.pan());
         validationService.validateExpiryDate(request.expiryDate());
         validationService.validateCardCreation(request.userId(), request.initialBalance());
@@ -137,7 +137,7 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
 
-        // ✅ Валидация изменения статуса
+        // Валидация изменения статуса
         validationService.validateCardStatusChange(card, request.status());
 
         CardStatus oldStatus = card.getStatus();
@@ -166,7 +166,7 @@ public class CardService {
         System.out.println("User " + user.getEmail() + " requested block for card " + cardId);
         card.setStatus(CardStatus.BLOCKED);
         cardRepository.save(card);
-        // ✅ Логируем запрос на блокировку
+        // Логируем запрос на блокировку
         auditService.logBlockRequest(card);
     }
 
@@ -178,7 +178,7 @@ public class CardService {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
 
-        // ✅ Валидация удаления
+        // Валидация удаления
         validationService.validateCardDeletion(card);
 
         cardRepository.delete(card);
@@ -205,7 +205,7 @@ public class CardService {
         if (!toCard.getUserId().equals(userId)) {
             throw new IllegalArgumentException("Target card does not belong to you");
         }
-        // ✅ Используем ValidationService для проверки
+        // Используем ValidationService для проверки
         validationService.validateTransfer(fromCard, toCard, request.amount());
 
         BigDecimal fromOldBalance = fromCard.getBalance();
@@ -222,7 +222,7 @@ public class CardService {
         auditService.logBalanceChange(toCard, toOldBalance);
     }
 
-        // ✅ ОБНОВЛЕННЫЙ метод проверки просроченных карт
+        // ОБНОВЛЕННЫЙ метод проверки просроченных карт
     @Transactional
     public void checkAndUpdateExpiredCards() {
         YearMonth currentDate = YearMonth.now();
